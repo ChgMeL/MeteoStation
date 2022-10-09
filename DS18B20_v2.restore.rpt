@@ -1,0 +1,83 @@
+Restore Archived Project report for DS18B20_v2
+Fri Jul 06 17:50:59 2018
+Quartus Prime Version 17.0.0 Build 595 04/25/2017 SJ Lite Edition
+
+
+---------------------
+; Table of Contents ;
+---------------------
+  1. Legal Notice
+  2. Restore Archived Project Summary
+  3. Restore Archived Project Messages
+  4. Files Restored
+  5. Files Not Restored
+
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 2017  Intel Corporation. All rights reserved.
+Your use of Intel Corporation's design tools, logic functions 
+and other software and tools, and its AMPP partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Intel Program License 
+Subscription Agreement, the Intel Quartus Prime License Agreement,
+the Intel MegaCore Function License Agreement, or other 
+applicable license agreement, including, without limitation, 
+that your use is for the sole purpose of programming logic 
+devices manufactured by Intel and sold by Intel or its 
+authorized distributors.  Please refer to the applicable 
+agreement for further details.
+
+
+
++-------------------------------------------------------------------------+
+; Restore Archived Project Summary                                        ;
++---------------------------------+---------------------------------------+
+; Restore Archived Project Status ; Successful - Fri Jul 06 17:50:59 2018 ;
+; Revision Name                   ; DS18B20_v2                            ;
+; Top-level Entity Name           ; DS18B20_v2                            ;
+; Family                          ; MAX 10                                ;
++---------------------------------+---------------------------------------+
+
+
++-----------------------------------+
+; Restore Archived Project Messages ;
++-----------------------------------+
+Info: Successfully restored 'D:/AlteraProjects/MAX10/DS18B20_plus_SHT10_30062018/DS18B20_v2_tmp_archive.qar' into the 'D:/AlteraProjects/MAX10/DS18B20_plus_SHT10_06072018(COMPLETED)/' directory
+Info: Generated report 'DS18B20_v2.restore.rpt'
+
+
++----------------------------+
+; Files Restored             ;
++----------------------------+
+; File Name                  ;
++----------------------------+
+; qar_info.json              ;
+; DS18B20_v2.qpf             ;
+; DS18B20_v2.qsf             ;
+; DS18B20_v2.v               ;
+; HUMIDITY.mif               ;
+; HUMIDITY.qip               ;
+; HUMIDITY.v                 ;
+; HUMIDITY_bb.v              ;
+; SHD0028.v                  ;
+; SHT10.stp                  ;
+; SHT10.v                    ;
+; assignment_defaults.qdf    ;
+; binary_to_bcd.v            ;
+; binary_to_bcd_temp.v       ;
+; db/SHT10_auto_stripped.stp ;
++----------------------------+
+
+
++--------------------+
+; Files Not Restored ;
++--------------------+
+; File Name          ;
++--------------------+
+
+

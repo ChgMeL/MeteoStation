@@ -1,0 +1,501 @@
+/*
+PIN-OUTS:
+-------------------------------------------		
+		DS18B20								-				MAX10 
+-------------------------------------------
+		GND									|		J5 (PIN #12)	- GND
+		POWER									|		J5	(PIN #29) 	- 3.3V
+		1-Wire	(DS18B20_DATA)			|		J4	(PIN #4) 	- AB15
+
+		
+
+
+*/
+
+module DS18B20_v2 (
+
+/*SIGNALS FOR DEBUBUGGING IN SIGNALTAP II*/
+
+//output reg 					strobe,
+/************************************************************************************************/
+input 						CLK,																							// 50 Mhz ( 1 tact = 20 ns) 1us = 50*20ns (N14)
+
+//output reg	[5:0]			STATE,
+//output reg	[15:0]		TEMPERATURE_VALUE,
+output  		[12:0]		DATA_TEMPERATURE,
+inout 						DS18B20_DATA,																				// DATA INPUT/OUTPUT for Device ON FPGA (AB15)
+
+output 						SHD0028_DATA,																				//
+output						SHD0028_CLK,																				//
+output 						SHD0028_LATCH_n,																			//
+output 						SHD0028_ENABLE_n,																			//
+
+output 		[12:0]		DATA_OUTPUT,
+inout							SHT10_I2C_DATA,
+output						SHT10_I2C_CLK
+);
+
+
+/*========================================= GENERAL LOGIC ======================================*/
+assign DATA_TEMPERATURE[3:0] = TEMPERATURE_VALUE[3:0];
+assign DATA_TEMPERATURE[12] = 1'b1;
+assign DS18B20_DATA = (DS18B20_ENABLE) ? 1'bz : 1'b0;
+assign DATA_OUTPUT[12:0] = (DATA_ENABLE) ? DATA_TEMPERATURE[12:0] : DATA_HUMIDITY[12:0];
+
+/*========================================= REGISTERS ==========================================*/
+wire	[12:0]				DATA_HUMIDITY;			
+
+reg 							DS18B20_ENABLE;																			// Bit for Control output Device
+reg	[5:0]					us;																							// Counter for make interval  = 1us
+reg	[5:0]					STATE;																						// Counter for number states
+reg	[24:0]				cnt;																							// Counter General
+reg	[15:0]				COMMAND_ROM;																				// Registers for ROM COMMAND
+reg	[15:0]				TEMPERATURE_VALUE;																		// Registers where stored temperature value
+reg	[4:0]					CntBits;																						// Counter bits for Temperature Value
+reg							CntBits_reset;																				// Check
+reg	[4:0]					CNT_ROM_BITS;
+reg							DATA_ENABLE;
+reg							BCD_CONTROL;			
+/*========================================= STATES =============================================*/
+
+localparam RESET_IMPULSE_TX					= 6'd0;
+localparam WAIT_45us								= 6'd1;
+localparam PRESENCE_RX							= 6'd2;
+localparam COMMMAND_ROM_EQUALS_SKIP_ROM	= 6'd3;
+localparam SKIP_ROM_AND_MEASURE_TEMP_TX	= 6'd4;
+localparam DELAY_960us							= 6'd5;
+localparam RESET_IMPULSE_TX_2					= 6'd6;
+localparam WAIT_45us_2							= 6'd7;
+localparam PRESENCE_RX_2						= 6'd8;
+localparam COMMAND_ROM_EQUALS_READTEMP		= 6'd9;
+localparam SKIP_ROM_AND_READ_TEMP_RX		= 6'd10;
+localparam READ_TEMPERATURE					= 6'd11;
+localparam SEND_DATA								= 6'd12;
+localparam BCD										= 6'd13;
+localparam READ_HUMIDITY						= 6'd14;
+localparam DELAY									= 6'd15;
+localparam DELAY_2								= 6'd16;
+
+/*====================================== CONSTANTS (us) ========================================*/
+
+localparam us_480									= 480;
+localparam us_45									= 45;
+localparam us_240									= 240;
+localparam us_70									= 70;
+localparam us_960									= 960;
+localparam s_5										= 5_000_000;
+localparam s_30									= 30_000_000;
+localparam s_10									= 10_000_000;
+
+/*====================================== ROM COMMANDS ==========================================*/
+
+localparam SKIP_ROM_AND_READ_TEMP			= 16'hBECC;															// SKIP ROM(h'CC) + READ SCRATCHPAD (h'BE)
+localparam MEASURE_TEMPERATURE_ROM			= 16'h44CC;															// SKIP ROM(h'CC) + MEASURe TEMPERATURE (h'44)
+//
+/*==============================================================================================*/
+/*========================================= ALWAYS =============================================*/
+/*==============================================================================================*/
+
+/*====================================== Counter for 1us =======================================*/
+always @ (posedge CLK)
+	begin
+	 if (us == 50)
+		begin
+			us <= 1'b0;
+//			strobe <= 1'b1;
+		end
+	 else
+		begin
+			us <= us + 1'b1;
+//		strobe <= 1'b0;
+		end
+	end
+
+/*====================================== Control DS18B20_ENABLE =================================*/
+always @ (posedge CLK)
+	begin
+		if (us == 50)
+		begin
+			if ((STATE == RESET_IMPULSE_TX) || (STATE == RESET_IMPULSE_TX_2))									// 0
+				DS18B20_ENABLE <= 1'b0;
+				
+			else if ((STATE == WAIT_45us) || (STATE == WAIT_45us_2))												// 1
+				DS18B20_ENABLE <= 1'b1;
+				
+			else if ((STATE == PRESENCE_RX) || (STATE == PRESENCE_RX_2))										// 2
+				DS18B20_ENABLE <= 1'b1;
+				
+			else if (STATE == SKIP_ROM_AND_MEASURE_TEMP_TX || STATE == SKIP_ROM_AND_READ_TEMP_RX)		// 3 and 10
+				begin
+					if (COMMAND_ROM[0] == 1'b1)
+						begin
+							if (cnt<= 10)
+								DS18B20_ENABLE <= 1'b0;
+							else
+								DS18B20_ENABLE <= 1'b1;
+						end
+					else if (COMMAND_ROM[0] == 1'b0)
+						begin
+							if (cnt <= 60)
+								DS18B20_ENABLE <= 1'b0;
+							else
+								DS18B20_ENABLE <= 1'b1;
+						end
+				end
+				
+			else if (STATE == READ_TEMPERATURE)																			// 11
+				begin
+					if (cnt <= 10)
+						DS18B20_ENABLE <= 1'b0;
+					else
+						DS18B20_ENABLE <= 1'b1;
+				end
+			
+			else
+				DS18B20_ENABLE <= 1'b1;
+//		else if (STATE == )						// 5
+//			begin
+//			end
+		end
+	end
+
+/*====================================== GENERAL COUNTER =======================================*/
+
+always @	(posedge CLK)
+	begin
+		if (us == 50)
+			begin
+					if (STATE == RESET_IMPULSE_TX  || STATE == PRESENCE_RX || STATE == RESET_IMPULSE_TX_2 || STATE == PRESENCE_RX_2 )	// 0 and 2 and 6 and 8
+						begin
+							if (cnt != us_480)
+								cnt <= cnt + 1'b1;
+							else
+								cnt <= 0;
+						end
+						
+					else if (STATE == WAIT_45us || STATE == WAIT_45us_2)															 						// 1 and 7
+						begin
+							if (cnt != us_45)
+								cnt <= cnt + 1'b1;
+							else
+								cnt <= 0;
+						end
+						
+					else if (STATE == SKIP_ROM_AND_MEASURE_TEMP_TX || STATE == SKIP_ROM_AND_READ_TEMP_RX || STATE == READ_TEMPERATURE)// 4 and 10 and 11
+						begin
+							if (cnt != us_70)
+								cnt <= cnt + 1'b1;
+							else
+								cnt <= 0;
+						end
+					
+					else if (STATE == DELAY_960us)																												// 5
+								begin
+									if (cnt != s_5/*us_960*/)		// can variate from 960 us to 5s
+										cnt <= cnt + 1'b1;
+									else
+										cnt <= 0;
+								end
+								
+					else if (STATE == BCD)
+					begin
+						if (cnt == 76)
+							cnt <= 0;
+						else
+							cnt <= cnt + 1'b1;
+					end
+													
+					else if (STATE == DELAY)
+								begin
+									if (cnt == s_10)
+										cnt <= 0;
+									else
+										cnt <= cnt + 1'b1;
+								end
+					else if (STATE == DELAY_2)
+								begin
+									if (cnt == s_5)
+										cnt <= 0;
+									else
+										cnt <= cnt + 1'b1;
+								end
+					else
+						cnt <= 0;
+			end
+	end
+/*====================================== COMMAND ROM ===========================================*/
+
+always @ (posedge CLK)
+	begin
+		if (us == 50)
+		begin	
+			if(STATE == SKIP_ROM_AND_MEASURE_TEMP_TX || STATE == SKIP_ROM_AND_READ_TEMP_RX)
+				begin
+					if (cnt == us_70)
+						begin
+							COMMAND_ROM <= COMMAND_ROM >> 1;
+							CNT_ROM_BITS <= CNT_ROM_BITS + 1'b1;
+						end
+				end
+				
+			else if (STATE == COMMMAND_ROM_EQUALS_SKIP_ROM)
+				COMMAND_ROM <= MEASURE_TEMPERATURE_ROM;
+				
+			else if (STATE == COMMAND_ROM_EQUALS_READTEMP)
+				COMMAND_ROM <= SKIP_ROM_AND_READ_TEMP;
+			
+			else if (STATE == PRESENCE_RX || STATE == PRESENCE_RX_2)
+				CNT_ROM_BITS <= 0;
+				
+//			if (STATE == SKIP_ROM_AND_READ_TEMP_RX)				
+		end
+	end
+
+/*====================================== READ_TEMPERATURE ===========================================*/
+
+always @ (posedge CLK)
+		begin
+			if (us == 50)
+				begin
+					if (STATE == READ_TEMPERATURE)																					// 11
+						begin
+							if (cnt == 20 && DS18B20_DATA == 1'b0 && CntBits <= 15)									// v2.02 Added "CntBits <= 15"
+								TEMPERATURE_VALUE[0] <= 1'b0;
+							else if (cnt == 20 && DS18B20_DATA == 1'b1 && CntBits <= 15)							// v2.02 Added "CntBits <= 15" for correction
+								TEMPERATURE_VALUE[0] <= 1'b1;
+							else if (cnt == 70)
+								begin
+									if (CntBits <= 15)
+										begin
+											TEMPERATURE_VALUE[15:0] <= {TEMPERATURE_VALUE[0],TEMPERATURE_VALUE[15:1]};
+											CntBits <= CntBits + 1'b1;
+										end
+									else if (CntBits == 16)
+										begin
+											CntBits <= 0;
+											CntBits_reset <= 1'b1;
+											case (TEMPERATURE_VALUE[3:0])
+												4'd0: TEMPERATURE_VALUE[3:0] <= 4'b0000;			//	0
+												4'd1: TEMPERATURE_VALUE[3:0] <= 4'b0001;			//	1
+												4'd2: TEMPERATURE_VALUE[3:0] <= 4'b0001;			//	1
+												4'd3: TEMPERATURE_VALUE[3:0] <= 4'b0010;			//	2
+												4'd4: TEMPERATURE_VALUE[3:0] <= 4'b0010;			// 2
+												4'd5: TEMPERATURE_VALUE[3:0] <= 4'b0011;			// 3
+												4'd6: TEMPERATURE_VALUE[3:0] <= 4'b0100;			// 4
+												4'd7: TEMPERATURE_VALUE[3:0] <= 4'b0100;			// 4
+												4'd8: TEMPERATURE_VALUE[3:0] <= 4'b0101;			// 5
+												4'd9: TEMPERATURE_VALUE[3:0] <= 4'b0110;			// 6
+												4'd10: TEMPERATURE_VALUE[3:0] <= 4'b0110;			// 6
+												4'd11: TEMPERATURE_VALUE[3:0] <= 4'b0111;			// 7
+												4'd12: TEMPERATURE_VALUE[3:0] <= 4'b0111;			// 7
+												4'd13: TEMPERATURE_VALUE[3:0] <= 4'b1000;			//	8
+												4'd14: TEMPERATURE_VALUE[3:0] <= 4'b1000;			// 8
+												4'd15: TEMPERATURE_VALUE[3:0] <= 4'b1001;			// 9
+											endcase
+										end
+								end
+						end
+						
+					else if (STATE == PRESENCE_RX)																	// 10
+						CntBits_reset <= 1'b0;
+						
+				end
+		end
+/*=================================== BCD DATA ==========================================*/
+
+always @ (posedge CLK)
+				begin
+					if (STATE == BCD)
+						begin
+							if (cnt <= 2)
+								BCD_CONTROL <= 1'b1;
+							else
+								BCD_CONTROL <= 1'b0;
+						end
+				end	
+/*==============================================================================================*/
+/*====================================== MAIN PROGRAM ==========================================*/
+/*==============================================================================================*/
+
+always @ (posedge CLK)
+	begin
+		if (us == 50)
+			begin
+				case(STATE)
+RESET_IMPULSE_TX:																										// 0
+										begin
+											if (cnt == us_480)
+												STATE <= WAIT_45us;
+										end
+WAIT_45us:																												// 1
+										begin
+											if (cnt == us_45)
+												STATE <= PRESENCE_RX;
+										end
+PRESENCE_RX:																											// 2
+										begin
+											if (cnt == us_480)
+												STATE <= COMMMAND_ROM_EQUALS_SKIP_ROM;
+										end
+COMMMAND_ROM_EQUALS_SKIP_ROM:																						// 3
+										begin
+											STATE <= SKIP_ROM_AND_MEASURE_TEMP_TX;
+										end
+SKIP_ROM_AND_MEASURE_TEMP_TX:																						// 4
+										begin
+											if (CNT_ROM_BITS == 16)
+												STATE <= DELAY_960us;
+										end
+DELAY_960us:																											// 5
+										begin
+											if (cnt == s_5 /*us_960*/)
+												STATE <= RESET_IMPULSE_TX_2;
+										end
+RESET_IMPULSE_TX_2:																									// 6
+										begin
+											if (cnt == us_480)
+												STATE <= WAIT_45us_2;
+										end
+WAIT_45us_2:																											// 7
+										begin
+											if (cnt == us_45)
+												STATE <= PRESENCE_RX_2;
+										end
+PRESENCE_RX_2:																											// 8
+										begin
+											if (cnt == us_480)
+												STATE <= COMMAND_ROM_EQUALS_READTEMP;
+										end
+COMMAND_ROM_EQUALS_READTEMP:																						// 9
+										begin							
+											STATE <= SKIP_ROM_AND_READ_TEMP_RX;
+										end
+SKIP_ROM_AND_READ_TEMP_RX:																							// 10
+										begin
+											if (CNT_ROM_BITS == 16)
+											STATE <= READ_TEMPERATURE;
+										end
+READ_TEMPERATURE:																										// 11
+										begin
+											if (CntBits_reset == 1'b1)
+												STATE <= BCD;
+										end
+										
+BCD:
+										begin
+											if (cnt == 76)
+												STATE <= SEND_DATA;
+										end
+							
+SEND_DATA:
+										begin
+											DATA_ENABLE <= 1'b1;
+											STATE <= DELAY;
+										end
+DELAY:
+										begin
+											if (cnt == s_10)
+												STATE <= READ_HUMIDITY;
+										end
+READ_HUMIDITY:				
+										begin
+											DATA_ENABLE <= 1'b0;
+											STATE <= DELAY_2;
+										end
+DELAY_2:
+										begin
+											if (cnt == s_5)
+												STATE <= RESET_IMPULSE_TX;
+										end
+				
+										
+										
+				endcase
+			end
+	end
+
+SHD0028 SEGMENTS_DISPLAY 
+(
+.CLK 						(CLK),
+
+.DATA						(DATA_OUTPUT), //(DATA_TEMPERATURE[15:0]),
+.SHD0028_DATA 			(SHD0028_DATA),
+.SHD0028_CLK 			(SHD0028_CLK),
+.SHD0028_LATCH_n 		(SHD0028_LATCH_n),
+
+.SHD0028_ENABLE_n 	(SHD0028_ENABLE_n)
+);															
+ 
+SHT10 TEMP_AND_HUMIDITY 
+(
+.strobe					(),																							// FOR DEBUG , FOR SIGNAL TAP II
+.CLK_2MHz				(),
+
+.CLK						(CLK),																						// CLK 50 Mhz (20 ns)
+.ENABLE					(),
+.I2C_DATA				(SHT10_I2C_DATA),				
+
+.I2C_CLK 				(SHT10_I2C_CLK),
+.DATA_HUMIDITY			(),
+.HUMIDITY_BCD			(DATA_HUMIDITY)
+);
+
+Binary_to_BCD_temperature BCD_temp
+(
+.i_Clock					(CLK),
+.i_Binary				(TEMPERATURE_VALUE[11:4]),
+.i_Start					(BCD_CONTROL),
+   //
+.o_BCD					(DATA_TEMPERATURE[11:4]),
+.o_DV						()
+);
+
+//
+//Binary_to_BCD DEC_to_BCD (
+//
+//.CLK						(CLK),
+//
+//.Binary_input			(TEMPERATURE_VALUE[11:4]),														// Binary INPUT 8 bits	 (256'd)
+//
+//.BCD_units				(TEMPERATURE_VALUE[7:4]),														//	BCD OUTPUT 4 bits (from 0 to 10) = UNITS
+//.BCD_tens				(TEMPERATURE_VALUE[11:8]),														// BCD OUTPUT 4 bits (from 0 to 10) = TENS												
+//.BCD_hundreds			(4'b0000)																			// BCD OUTPUT 4 bits (from 0 to 10) = HUNDRED
+//);
+
+//NIOS2_for_meteostation NIOS2 (
+//        .clk_clk                     (CLK),                     //              clk.clk
+//        .reset_reset_n               (),               //            reset.reset_n
+//		  
+//        .i2c_sht10_export_scl_pad_io (SHT10_I2C_CLK), // i2c_sht10_export.scl_pad_io
+//        .i2c_sht10_export_sda_pad_io (SHT10_I2C_DATA)  //                 .sda_pad_io
+//    );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+endmodule

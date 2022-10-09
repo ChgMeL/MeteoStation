@@ -1,0 +1,301 @@
+{
+	"partitions" : [
+		{
+			"name" : "Top",
+			"pins" : [
+				{
+					"name" : "strobe",
+					"strict" : false
+				},
+				{
+					"name" : "STATE[0]",
+					"strict" : false
+				},
+				{
+					"name" : "STATE[1]",
+					"strict" : false
+				},
+				{
+					"name" : "STATE[2]",
+					"strict" : false
+				},
+				{
+					"name" : "STATE[3]",
+					"strict" : false
+				},
+				{
+					"name" : "STATE[4]",
+					"strict" : false
+				},
+				{
+					"name" : "TEMPERATURE_VALUE[0]",
+					"strict" : false
+				},
+				{
+					"name" : "TEMPERATURE_VALUE[1]",
+					"strict" : false
+				},
+				{
+					"name" : "TEMPERATURE_VALUE[2]",
+					"strict" : false
+				},
+				{
+					"name" : "TEMPERATURE_VALUE[3]",
+					"strict" : false
+				},
+				{
+					"name" : "TEMPERATURE_VALUE[4]",
+					"strict" : false
+				},
+				{
+					"name" : "TEMPERATURE_VALUE[5]",
+					"strict" : false
+				},
+				{
+					"name" : "TEMPERATURE_VALUE[6]",
+					"strict" : false
+				},
+				{
+					"name" : "TEMPERATURE_VALUE[7]",
+					"strict" : false
+				},
+				{
+					"name" : "TEMPERATURE_VALUE[8]",
+					"strict" : false
+				},
+				{
+					"name" : "TEMPERATURE_VALUE[9]",
+					"strict" : false
+				},
+				{
+					"name" : "TEMPERATURE_VALUE[10]",
+					"strict" : false
+				},
+				{
+					"name" : "TEMPERATURE_VALUE[11]",
+					"strict" : false
+				},
+				{
+					"name" : "TEMPERATURE_VALUE[12]",
+					"strict" : false
+				},
+				{
+					"name" : "TEMPERATURE_VALUE[13]",
+					"strict" : false
+				},
+				{
+					"name" : "TEMPERATURE_VALUE[14]",
+					"strict" : false
+				},
+				{
+					"name" : "TEMPERATURE_VALUE[15]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_TEMPERATURE[0]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_TEMPERATURE[1]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_TEMPERATURE[2]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_TEMPERATURE[3]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_TEMPERATURE[4]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_TEMPERATURE[5]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_TEMPERATURE[6]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_TEMPERATURE[7]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_TEMPERATURE[8]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_TEMPERATURE[9]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_TEMPERATURE[10]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_TEMPERATURE[11]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_TEMPERATURE[13]",
+					"strict" : false
+				},
+				{
+					"name" : "SHD0028_DATA",
+					"strict" : false
+				},
+				{
+					"name" : "SHD0028_CLK",
+					"strict" : false
+				},
+				{
+					"name" : "SHD0028_LATCH_n",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_OUTPUT[0]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_OUTPUT[1]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_OUTPUT[2]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_OUTPUT[3]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_OUTPUT[4]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_OUTPUT[5]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_OUTPUT[6]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_OUTPUT[7]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_OUTPUT[8]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_OUTPUT[9]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_OUTPUT[10]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_OUTPUT[11]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_OUTPUT[12]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_OUTPUT[13]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_OUTPUT[14]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_OUTPUT[15]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_OUTPUT[16]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_OUTPUT[17]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_OUTPUT[18]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_OUTPUT[19]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_OUTPUT[20]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_OUTPUT[21]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_OUTPUT[22]",
+					"strict" : false
+				},
+				{
+					"name" : "DATA_OUTPUT[23]",
+					"strict" : false
+				},
+				{
+					"name" : "SHT10_I2C_CLK",
+					"strict" : false
+				},
+				{
+					"name" : "RTC_DS3231_SCL",
+					"strict" : false
+				},
+				{
+					"name" : "TEMP_OR_RTC",
+					"strict" : false
+				},
+				{
+					"name" : "DS18B20_DATA",
+					"strict" : false
+				},
+				{
+					"name" : "SHT10_I2C_DATA",
+					"strict" : false
+				},
+				{
+					"name" : "RTC_DS3231_SDA",
+					"strict" : false
+				},
+				{
+					"name" : "CLK",
+					"strict" : false
+				},
+				{
+					"name" : "altera_reserved_tms",
+					"strict" : false
+				},
+				{
+					"name" : "altera_reserved_tck",
+					"strict" : false
+				},
+				{
+					"name" : "altera_reserved_tdi",
+					"strict" : false
+				},
+				{
+					"name" : "altera_reserved_tdo",
+					"strict" : false
+				}
+			]
+		}
+	]
+}

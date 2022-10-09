@@ -1,0 +1,29 @@
+Quartus Prime Archive log --	D:/AlteraProjects/MAX10/DS18B20_plus_SHT10_28022019/DS18B20_v2.qarlog
+
+Archive:	D:/AlteraProjects/MAX10/DS18B20_plus_SHT10_28022019/DS18B20_v2.qar
+Date:		Tue Apr 30 15:32:46 2019
+Quartus Prime		17.0.0 Build 595 04/25/2017 SJ Lite Edition
+
+	=========== Files Selected: ===========
+D:/AlteraProjects/MAX10/DS18B20_plus_SHT10_28022019/DS18B20_v2.qpf
+D:/AlteraProjects/MAX10/DS18B20_plus_SHT10_28022019/DS18B20_v2.qsf
+D:/AlteraProjects/MAX10/DS18B20_plus_SHT10_28022019/DS18B20_v2.v
+D:/AlteraProjects/MAX10/DS18B20_plus_SHT10_28022019/HUMIDITY.qip
+D:/AlteraProjects/MAX10/DS18B20_plus_SHT10_28022019/HUMIDITY.v
+D:/AlteraProjects/MAX10/DS18B20_plus_SHT10_28022019/HUMIDITY_WIDE.mif
+D:/AlteraProjects/MAX10/DS18B20_plus_SHT10_28022019/HUMIDITY_WIDE.qip
+D:/AlteraProjects/MAX10/DS18B20_plus_SHT10_28022019/HUMIDITY_WIDE.v
+D:/AlteraProjects/MAX10/DS18B20_plus_SHT10_28022019/HUMIDITY_WIDE_bb.v
+D:/AlteraProjects/MAX10/DS18B20_plus_SHT10_28022019/HUMIDITY_bb.v
+D:/AlteraProjects/MAX10/DS18B20_plus_SHT10_28022019/SHD0028.v
+D:/AlteraProjects/MAX10/DS18B20_plus_SHT10_28022019/SHT10.stp
+D:/AlteraProjects/MAX10/DS18B20_plus_SHT10_28022019/SHT10.v
+D:/AlteraProjects/MAX10/DS18B20_plus_SHT10_28022019/assignment_defaults.qdf
+D:/AlteraProjects/MAX10/DS18B20_plus_SHT10_28022019/binary_to_bcd.v
+D:/AlteraProjects/MAX10/DS18B20_plus_SHT10_28022019/binary_to_bcd_temp.v
+D:/AlteraProjects/MAX10/DS18B20_plus_SHT10_28022019/db/DS18B20_v2_SIGNALTAP_auto_stripped.stp
+D:/AlteraProjects/MAX10/DS18B20_plus_SHT10_28022019/output_files/DS18B20_v2_SIGNALTAP.stp
+	======= Total: 18 files to archive =======
+
+	================ Status: ===============
+All files archived successfully.
